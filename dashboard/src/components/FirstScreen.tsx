@@ -1,7 +1,8 @@
-import { Form, Segment, Input, TextArea, Button, Select, Container, Message } from 'semantic-ui-react';
+import { Form, Segment, Dropdown, Input, TextArea, Button, Select, Container, Message } from 'semantic-ui-react';
 import { scanSchema } from '../interfaces/scanDataInterface';
 import { useState } from 'react';
 import axios from 'axios';
+import SecondScreen from './SecondScreen';
 
 export function FirstScreen() {
 
@@ -17,11 +18,11 @@ export function FirstScreen() {
   const [scanningAt, setscanningAt] = useState('');
   const [finishedAt, setFinishedAt] = useState('');
   const [ifSuccess, setIfSuccess] = useState(false);
+  // const [pageOne, setPageOne]= useState('')
 
 
   function setValueData(event: any, func: any) {
     func(event.target.value);
-    console.log(status)
   }
 
   const options = [
@@ -33,7 +34,7 @@ export function FirstScreen() {
   ]
 
   let dataToSend = {
-    status: "Queued",
+    status: status,
     repositoryName: repoName,
     findings: [{ type: type, ruleID: ruleId, location: { path: path, positions: { begin: { line: line } } }, metadata: { description: description, severity: severity } }],
     queuedAt: queuedAt,
@@ -42,8 +43,9 @@ export function FirstScreen() {
   }
 
   function checkVal(e: any) {
-    console.log(e)
-    console.log(e.target.value);
+    let element = e.target;
+    console.log(element.innerText);
+    setStatus(element.innerText);
   }
 
   function sendScanDoc() {
@@ -57,15 +59,13 @@ export function FirstScreen() {
   return (
     <Container>
       <br />
-      <Segment >
+      <Segment>
         <Form >
           <Form.Group widths='equal'>
             <Form.Select
               fluid
               label='Status'
               options={options}
-              // defaultValue="queued"
-              data-value="queued"
               placeholder='Status'
               onChange={checkVal}
             >
@@ -81,8 +81,8 @@ export function FirstScreen() {
             <Form.Input fluid label='Line' placeholder='Line' onChange={(e) => setValueData(e, setLine)} />
           </Form.Group>
           <Form.Group widths='equal'>
-            <Form.Input fluid label='description' placeholder='Description' onChange={(e) => setValueData(e, setDescription)} />
-            <Form.Input fluid label='severity' placeholder='Severity' onChange={(e) => setValueData(e, setSeverity)} />
+            <Form.Input fluid label='Description' placeholder='Description' onChange={(e) => setValueData(e, setDescription)} />
+            <Form.Input fluid label='Severity' placeholder='Severity' onChange={(e) => setValueData(e, setSeverity)} />
           </Form.Group>
           <Form.Group widths='equal'>
             <Form.Input type="datetime-local" fluid label='QueuedAt' onChange={(e) => setValueData(e, setQueuedAt)} />
@@ -90,15 +90,15 @@ export function FirstScreen() {
             <Form.Input type="datetime-local" fluid label='FinishedAt' onChange={(e) => setValueData(e, setFinishedAt)} />
           </Form.Group>
           <br />
-          <Form.Button onClick={() => sendScanDoc()}>Submit</Form.Button>
+          <Form.Button onClick={() => sendScanDoc()} type='submit'>Submit</Form.Button>
         </Form>
 
       </Segment>
-      {ifSuccess ? 
-      <Message
+      {ifSuccess ?
+        <Message
           header='Scan Added Succesfully'
         />
-      : " " }
+        : " "}
     </Container>
   );
 }

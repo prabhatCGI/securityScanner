@@ -3,7 +3,7 @@ require('./dbConnenction/databaseConnection');
 const mongoose = require('mongoose');
 const cors = require('cors');
 
-import express, { Express } from 'express';
+import express, { Express, response } from 'express';
 
 
 const app: Express = express();
@@ -52,7 +52,46 @@ app.delete('/delete/:id', (req, res) => {
     console.log("Listening")
     let delId = req.params.id;
     const deleteSchema: any = new mongoose.model("Scan", scanSchema)
-    deleteSchema.findOneAndDelete(({ id: delId }))
+    deleteSchema.findByIdAndDelete(req.params.id).then((blog: any)=>{
+        if (!blog)
+        {
+            return res.status(404).send();
+        }
+        res.send(blog);
+    }).catch((error: any)=>{
+        res.send(500).send(error);
+    })
+    // res.send("Deleted ID");
+
+})
+
+// PUT API CALL
+
+app.put("/put/:id",(req,res)=>{
+    const getOneSchema: any = new mongoose.model("Scan", scanSchema)
+    getOneSchema.findOne({_id:req.params.id},{$set:{
+        status: req.body.status,
+        repositoryName: req.body.repositoryName,
+        findings: [{ type: req.body.findings[0].type, ruleID: req.body.findings[0].ruleID, location: { path: req.body.findings[0].location.path, positions: { begin: { line: req.body.findings[0].location.positions.begin.line } } }, metadata: { description: req.body.findings[0].metadata.description, severity: req.body.findings[0].metadata.severity } }],
+        queuedAt: req.body.queuedAt,
+        scanningAt: req.body.scanningAt,
+        finishedAt: req.body.finishedAt
+    }}).then((result: any)=>{
+        res.status(200).json(result)
+    }).catch((err: any)=>{console.log(err)})
+})
+
+
+
+// Get Single Data API CALL
+
+app.get("/getOneRecord/:id",(req,res)=>{
+    const getRecordSchema: any = new mongoose.model("Scan", scanSchema)
+    getRecordSchema.findOne({_id: req.params.id}).then((result: any)=>{
+        res.status(200).json({
+            allData: result
+        })
+    }).catch((err: any)=>{console.log(err)})
 })
 
 
